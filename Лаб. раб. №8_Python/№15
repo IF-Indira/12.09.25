@@ -1,0 +1,43 @@
+def find_all_paths(maze):
+    """
+    Находит все пути в лабиринте 5×5
+    0 - проходимая клетка, 1 - стена
+    """
+    def backtrack(x, y, path):
+        # Если достигли правого нижнего угла
+        if x == 4 and y == 4:
+            paths.append(path[:])
+            return
+        
+        # Возможные направления: вправо, вниз, влево, вверх
+        directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+        
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            
+            # Проверка границ и проходимости
+            if (0 <= nx < 5 and 0 <= ny < 5 and 
+                maze[ny][nx] == 0 and (nx, ny) not in path):
+                path.append((nx, ny))
+                backtrack(nx, ny, path)
+                path.pop()
+    
+    paths = []
+    start = (0, 0)
+    backtrack(0, 0, [start])
+    return paths
+
+# Пример использования
+print("Вариант 15 - Пути в лабиринте 5×5:")
+maze = [
+    [0, 1, 0, 0, 0],
+    [0, 1, 0, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0]
+]
+
+paths = find_all_paths(maze)
+print(f"Найдено путей: {len(paths)}")
+if paths:
+    print(f"Пример пути: {paths[0]}")
