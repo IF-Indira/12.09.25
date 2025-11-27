@@ -1,0 +1,20 @@
+def generate_binary_strings(n):
+    """
+    Генерирует все бинарные строки длины n
+    """
+    if n == 0:
+        return [""]
+    
+    smaller_strings = generate_binary_strings(n - 1)
+    result = []
+    
+    for string in smaller_strings:
+        result.append(string + "0")
+        result.append(string + "1")
+    
+    return result
+
+# Пример использования
+print("Вариант 10 - Бинарные строки длины 3:")
+binary_strings = generate_binary_strings(3)
+print(binary_strings)
