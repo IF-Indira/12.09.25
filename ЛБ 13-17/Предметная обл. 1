@@ -1,0 +1,64 @@
+from collections import deque
+
+def epsilon_closure(state, transitions):
+    closure = set(state)
+    stack = list(state)
+    while stack:
+        s = stack.pop()
+        if (s, 'ε') in transitions:
+            for next_state in transitions[(s, 'ε')]:
+                if next_state not in closure:
+                    closure.add(next_state)
+                    stack.append(next_state)
+    return frozenset(closure)
+
+def nfa_to_dfa(nfa_states, alphabet, nfa_transitions, start_state, final_states):
+    dfa_states = {}
+    dfa_transitions = {}
+    unprocessed = deque()
+    
+    start_closure = epsilon_closure({start_state}, nfa_transitions)
+    dfa_states[start_closure] = False
+    unprocessed.append(start_closure)
+    
+    while unprocessed:
+        current = unprocessed.popleft()
+        for symbol in alphabet:
+            if symbol == 'ε':
+                continue
+            next_states = set()
+            for nfa_state in current:
+                if (nfa_state, symbol) in nfa_transitions:
+                    next_states.update(nfa_transitions[(nfa_state, symbol)])
+            if not next_states:
+                continue
+            closure = epsilon_closure(next_states, nfa_transitions)
+            if closure not in dfa_states:
+                dfa_states[closure] = False
+                unprocessed.append(closure)
+            dfa_transitions[(current, symbol)] = closure
+    
+    dfa_final_states = {state for state in dfa_states if any(fs in state for fs in final_states)}
+    
+    return dfa_states, dfa_transitions, dfa_final_states, start_closure
+
+# Пример использования
+nfa_states = {'q0', 'q1', 'q2'}
+alphabet = {'a', 'b'}
+nfa_transitions = {
+    ('q0', 'a'): {'q1'},
+    ('q0', 'ε'): {'q2'},
+    ('q1', 'b'): {'q2'},
+    ('q2', 'a'): {'q2'}
+}
+start_state = 'q0'
+final_states = {'q2'}
+
+dfa_states, dfa_transitions, dfa_final_states, dfa_start = nfa_to_dfa(
+    nfa_states, alphabet, nfa_transitions, start_state, final_states
+)
+
+print("DFA состояния:", dfa_states.keys())
+print("DFA переходы:", dfa_transitions)
+print("DFA начальное состояние:", dfa_start)
+print("DFA конечные состояния:", dfa_final_states)
